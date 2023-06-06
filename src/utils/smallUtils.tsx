@@ -1,3 +1,23 @@
+interface IHasPlayerName {
+  playerName: string
+}
+
+function hasDuplicateNames<T extends IHasPlayerName>(array: T[]): Set<string> | null {
+  const encounteredNames = new Set<string>();
+
+  for (let i = 0; i < array.length; i++) {
+    const name = array[i].playerName;
+
+    if (encounteredNames.has(name)) {
+      return encounteredNames; // Duplicate name found
+    }
+
+    encounteredNames.add(name);
+  }
+
+  return null; // No duplicate names found
+}
+
 function convertToKebabCase(string: string): string {
   const lowercaseString = string.toLowerCase();
 
@@ -10,4 +30,4 @@ function convertToKebabCase(string: string): string {
   return kebabCaseString;
 }
 
-export { convertToKebabCase }
+export { convertToKebabCase, hasDuplicateNames }

@@ -9,26 +9,20 @@ interface IProps {
 
 const PlayerName = ({ player, changePlayerName }: IProps) => {
   const { playerId, playerName } = player
-  const [currentPlayerName, setCurrentPlayerName] = useState<string>('')
+  const [currentPlayerName, setCurrentPlayerName] = useState<string>(playerName)
 
   const onPlayerNameChange = (e: React.FormEvent<HTMLInputElement> | undefined) => {
     if (e) setCurrentPlayerName(e.currentTarget.value)
   }
 
   const handleChangeName = () => {
-    if (!currentPlayerName) changePlayerName(playerId, `Player ${playerId + 1}`)
+    if (!currentPlayerName) setCurrentPlayerName(playerName)
     else changePlayerName(playerId, currentPlayerName)
-
-    setCurrentPlayerName('')
   }
 
   return (
-    <div>
-      <p>{playerName}</p>
-      <div>
-        <InputField value={currentPlayerName} onChange={onPlayerNameChange} />
-        <button className="border-2 border-red-800" onClick={handleChangeName}>Change Name</button>
-      </div>
+    <div className="my-2">
+      <InputField value={currentPlayerName} onChange={onPlayerNameChange} onBlur={handleChangeName} />
     </div>
   )
 }
