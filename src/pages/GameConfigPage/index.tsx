@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IPlayer } from '../models/playerModel';
-import PlayerNameChange from '../components/playerNameChange';
+import { IPlayer } from '../../models/playerModel';
+import PlayerName from './components/PlayerName';
 
 const defaultPlayer: IPlayer[] = [
   {
@@ -36,7 +36,7 @@ const GameConfigPage = () => {
       <div>
         {playerList.map(player => {
           return (
-            <PlayerNameChange key={player.playerId} player={player} changePlayerName={changePlayerName} />
+            <PlayerName key={player.playerId} player={player} changePlayerName={changePlayerName} />
           )
         })}
       </div>
