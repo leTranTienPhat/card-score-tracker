@@ -1,14 +1,23 @@
-import { IGame } from "../models/gameModels"
+import { IGame } from "../models/gameModel"
 
 interface IProps {
   game: IGame
+  onClickAction: (string: string) => void
 }
 
-const Card = ({ game }: IProps) => {
-  const { name } = game
+const Card = ({ game, onClickAction }: IProps) => {
+  const { name, recommendNumberOfPlayer } = game
 
   return (
-    <div>{name}</div>
+    <div className="w-full h-[200px] p-4">
+      <div
+        className="flex flex-col justify-center items-center w-full h-full bg-red-200 rounded-lg cursor-pointer"
+        onClick={() => onClickAction(name)}
+      >
+        <h3>{name}</h3>
+        <p>({recommendNumberOfPlayer} người chơi)</p>
+      </div>
+    </div>
   )
 }
 
