@@ -1,14 +1,14 @@
 import Card from "../components/Card"
-import { gameList } from "../models/gameModel.js"
+import { IGame, gameList } from "../models/gameModel.js"
 import { convertToKebabCase } from "../utils/smallUtils.js"
 import { useNavigate } from "react-router-dom";
 
 const SelectionPage = () => {
   const navigate = useNavigate()
 
-  const onChooseGame = (name: string): void => {
-    const kebabName = convertToKebabCase(name)
-    navigate(`/config/${kebabName}`)
+  const onChooseGame = (selectedGame: IGame): void => {
+    const kebabName = convertToKebabCase(selectedGame.name)
+    navigate(`/config/${kebabName}`, { state: { selectedGame } })
   }
 
   return (
