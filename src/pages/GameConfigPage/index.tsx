@@ -1,27 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { IPlayer } from '../../models/playerModel';
-import PlayerName from './components/PlayerName';
 import { IGame } from '../../models/gameModel';
 import { hasDuplicateNames } from '../../utils/smallUtils';
-import { useNavigate } from "react-router-dom";
+import PlayerName from './components/PlayerName';
 
 interface IRouterState {
   selectedGame: IGame;
 }
-
-// const defaultPlayer: IPlayer[] = [
-//   {
-//     playerId: 0,
-//     playerName: 'Player 1',
-//     currentScore: 0
-//   },
-//   {
-//     playerId: 1,
-//     playerName: 'Player 2',
-//     currentScore: 0
-//   },
-// ]
 
 const GameConfigPage = () => {
   const { gameName } = useParams()
@@ -30,19 +17,27 @@ const GameConfigPage = () => {
 
   const [playerList, setPlayerList] = useState<IPlayer[]>([])
   const [numberOfPlayer, setNumberOfPlayer] = useState<string | number>(selectedGame.recommendNumberOfPlayer)
+  const [isGameRunning, setIsGameRunning] = useState<boolean>(false)
   const navigate = useNavigate()
 
   useEffect(() => {
-    const newPlayerList: IPlayer[] = []
-    for (let playerCount = 0; playerCount < selectedGame.recommendNumberOfPlayer; playerCount++) {
-      const newPlayer = {
-        playerId: playerCount,
-        playerName: `Player ${playerCount + 1}`,
-        currentScore: 0
-      }
-      newPlayerList.push(newPlayer)
+    const storedPlayerList = localStorage.getItem(`tien-len-playerList`);
+    if (storedPlayerList) {
+      setIsGameRunning(true)
+      setPlayerList(JSON.parse(storedPlayerList))
     }
-    setPlayerList(newPlayerList)
+    else {
+      const newPlayerList: IPlayer[] = []
+      for (let playerCount = 0; playerCount < selectedGame.recommendNumberOfPlayer; playerCount++) {
+        const newPlayer = {
+          playerId: playerCount,
+          playerName: `Player ${playerCount + 1}`,
+          currentScore: 0
+        }
+        newPlayerList.push(newPlayer)
+      }
+      setPlayerList(newPlayerList)
+    }
   }, [selectedGame])
 
   const changePlayerName = (playerId: number, newName: string): void => {
@@ -76,12 +71,19 @@ const GameConfigPage = () => {
   }
 
   const onStartGameBtn = () => {
+    if (isGameRunning) {
+      const warningText = "Băt đầu game mới sẽ xóa dữ liệu của game cũ, bạn có chắc muốn bắt đầu game mới không?"
+      if (!confirm(warningText)) return
+    }
+
     const duplicatedNames = hasDuplicateNames(playerList)
     if (duplicatedNames) {
       const [names] = duplicatedNames.values();
       alert(`Duplicate ${names}`)
     }
     else {
+      localStorage.setItem(`${gameName}-playerList`, JSON.stringify(playerList));
+      setIsGameRunning(true)
       navigate(`/score/${gameName}`, { state: { selectedGame } })
     }
   }
@@ -101,7 +103,8 @@ const GameConfigPage = () => {
         })}
       </div>
       <div>
-        <button className="border-2 border-blue-500 p-2" onClick={() => onStartGameBtn()}>Start</button>
+        <button className="border-2 border-blue-500 p-2" onClick={() => onStartGameBtn()}>{isGameRunning ? "Bắt đầu game mới" : "Bắt đầu"}</button>
+        {isGameRunning && <button className="border-2 border-blue-500 p-2" onClick={() => navigate(1)}>Tiếp tục</button>}
       </div>
     </div>
   )
