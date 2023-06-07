@@ -106,7 +106,7 @@ const GameConfigPage = () => {
 
   const onCancelGameBtn = () => {
     localStorage.removeItem(`${gameName}-playerList`);
-    navigate(0)
+    location.reload();
   }
 
   return (
