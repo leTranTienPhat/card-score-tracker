@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IPlayer } from '../../models/playerModel';
 import RoundRanking from '../../components/RoundRanking';
 import { swapValues } from '../../utils/smallUtils';
+import GameSideEvent from '../../components/GameSideEvent';
 
 const TienLen = () => {
   const [playerList, setPlayerList] = useState<IPlayer[]>([])
@@ -13,7 +14,7 @@ const TienLen = () => {
     const storedPlayerList = localStorage.getItem(`tien-len-playerList`);
     if (storedPlayerList) {
       setPlayerList(JSON.parse(storedPlayerList))
-      setRoundRankingList(Array(playerList.length).fill(null))
+      setRoundRankingList(Array(4).fill(null))
     }
     else navigate('/')
   }, [navigate, playerList.length])
@@ -55,8 +56,10 @@ const TienLen = () => {
     let score = 2
     roundRankingList.forEach(playerId => {
       if (score === 0) score--
-      const updatePlayerIdx = newPlayerList.findIndex(player => player.playerId === playerId)
-      newPlayerList[updatePlayerIdx].currentScore += score
+      if (playerId !== null) {
+        const updatePlayerIdx = newPlayerList.findIndex(player => player.playerId === playerId)
+        newPlayerList[updatePlayerIdx].currentScore += score
+      }
       score--
     })
 
@@ -71,7 +74,6 @@ const TienLen = () => {
 
   const onFinishGameBtn = () => {
     console.log(playerList)
-
     // localStorage.clear();
     // navigate('/')
   }
@@ -79,26 +81,32 @@ const TienLen = () => {
   return (
     <div>
       <h1>Tiến lên</h1>
+
       <div>
         {playerList.map(player => {
           return (
-            <div key={player.playerId}>{player.playerName}: {player.currentScore} point</div>
+            <div key={player.playerId}>{player.playerName}: {player.currentScore} điểm</div>
           )
         })}
       </div>
+
       <div className="flex flex-col gap-4 my-4">
-        {playerList.map(player => {
+        {roundRankingList.map((round, index) => {
           return (
             <RoundRanking
-              key={player.playerId}
-              place={player.playerId}
+              key={index}
+              place={index}
               playerList={playerList}
               roundRankingList={roundRankingList}
               clearOneRoundRanking={clearOneRoundRanking}
-              updateRoundRanking={updateRoundRanking} />
+              updateRoundRanking={updateRoundRanking}
+            />
           )
         })}
       </div>
+
+      <span className="p-2 cursor-pointer border-2 border-black rounded-full" >+</span>
+      <GameSideEvent playerList={playerList} />
 
       <div>
         <button onClick={() => onFinishRoundBtn()}>Kết thúc hiệp chơi</button>
