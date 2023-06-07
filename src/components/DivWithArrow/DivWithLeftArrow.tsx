@@ -9,26 +9,21 @@ interface IProps {
 }
 
 const DivWithLeftArrow = ({ className, isOpenSelectionMenu, toggleSelectionMenu, children }: IProps) => {
-  // useEffect(() => {
-  //   const detectClickOutside = (e: any) => {
-  //     if (document.getElementById('player-selection')?.contains(e.target)) {
-  //       console.log("Inside")
-  //     } else {
-  //       console.log("outside")
-  //       if (isOpenSelectionMenu) toggleSelectionMenu()
-  //     }
-  //   }
+  useEffect(() => {
+    const detectClickOutside = (e: any) => {
+      if (!document.getElementById('player-selection')?.contains(e.target)) {
+        if (isOpenSelectionMenu) toggleSelectionMenu()
+      }
+    }
+    window.addEventListener('mouseup', detectClickOutside)
+    return () => {
+      window.removeEventListener('mouseup', detectClickOutside)
+    }
 
-  //   window.addEventListener('click', detectClickOutside)
-
-  //   return () => {
-  //     window.removeEventListener('click', detectClickOutside)
-  //   }
-
-  // }, [toggleSelectionMenu, isOpenSelectionMenu])
+  }, [toggleSelectionMenu, isOpenSelectionMenu])
 
   return (
-    <div id="player-selection" className={`arrow_box ${className}`}>
+    <div id="player-selection" className={`arrow_box ${className} z-50`}>
       {children}
     </div>
   )

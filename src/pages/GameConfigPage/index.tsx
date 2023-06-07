@@ -22,6 +22,7 @@ const GameConfigPage = () => {
 
   useEffect(() => {
     const storedPlayerList = localStorage.getItem(`tien-len-playerList`);
+
     if (storedPlayerList) {
       setIsGameRunning(true)
       setPlayerList(JSON.parse(storedPlayerList))
@@ -104,7 +105,7 @@ const GameConfigPage = () => {
       </div>
       <div>
         <button className="border-2 border-blue-500 p-2" onClick={() => onStartGameBtn()}>{isGameRunning ? "Bắt đầu game mới" : "Bắt đầu"}</button>
-        {isGameRunning && <button className="border-2 border-blue-500 p-2" onClick={() => navigate(1)}>Tiếp tục</button>}
+        {isGameRunning && <button className="border-2 border-blue-500 p-2">Tiếp tục (Not Working)</button>}
       </div>
     </div>
   )

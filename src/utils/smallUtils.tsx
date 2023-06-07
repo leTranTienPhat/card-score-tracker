@@ -1,8 +1,6 @@
-interface IHasPlayerName {
-  playerName: string
-}
+import { IPlayer } from "../models/playerModel";
 
-function hasDuplicateNames<T extends IHasPlayerName>(array: T[]): Set<string> | null {
+function hasDuplicateNames(array: IPlayer[]): Set<string> | null {
   const encounteredNames = new Set<string>();
 
   for (let i = 0; i < array.length; i++) {
@@ -30,4 +28,18 @@ function convertToKebabCase(string: string): string {
   return kebabCaseString;
 }
 
-export { convertToKebabCase, hasDuplicateNames }
+function swapValues<T>(arr: T[], index1: number, index2: number): T[] {
+  // Swap the values at the given indices
+  [arr[index1], arr[index2]] = [arr[index2], arr[index1]];
+
+  // Optionally, you can return the modified array if needed
+  return [...arr];
+}
+
+function findPlayerNameById(arr: IPlayer[], id: number) {
+  const foundPlayer = arr.find(obj => obj.playerId === id);
+  return foundPlayer ? foundPlayer.playerName : '';
+}
+
+export { convertToKebabCase, hasDuplicateNames, swapValues, findPlayerNameById }
+

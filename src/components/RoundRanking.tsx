@@ -1,46 +1,55 @@
 import { IPlayer } from "../models/playerModel"
 import { useState } from "react"
 import DivWithLeftArrow from "./DivWithArrow/DivWithLeftArrow"
+import { findPlayerNameById } from "../utils/smallUtils"
+
 interface IProps {
   place: number,
   playerList: IPlayer[],
-  updatePlayerScore: () => void
+  roundRankingList: Array<number | null>,
+  updateRoundRanking: (idx: number, playerId: number) => void,
+  clearOneRoundRanking: (idx: number) => void
 }
 
-const RoundRanking = ({ place, playerList }: IProps) => {
+const RoundRanking = ({ place, playerList, roundRankingList, updateRoundRanking, clearOneRoundRanking }: IProps) => {
   const [isOpenSelectionMenu, setIsOpenSelectionMenu] = useState<boolean>(false)
-
+  console.log("rerender")
   const toggleSelectionMenu = () => {
     setIsOpenSelectionMenu(!isOpenSelectionMenu)
   }
 
-  const handleSelectPlayer = () => {
+  const handleSelectPlayer = (playerId: number) => {
+    updateRoundRanking(place, playerId)
     toggleSelectionMenu()
   }
 
   return (
-    <div className="flex">
-      <span className="px-2 border-2 border-red-400 rounded-full">{place}</span>
+    <div className="flex items-center">
+      <span className="px-2 border-2 border-red-400 rounded-full">{place + 1}</span>
       <div className="relative" >
         {/* Display Current Ranking Player */}
-        <span>ASDASDAS</span>
+        <span>{findPlayerNameById(playerList, (roundRankingList[place] as number))}</span>
 
         {/* Change Current Ranking Player */}
-        <span className="p-2 cursor-pointer border-2 border-black rounded-full" onClick={() => toggleSelectionMenu()}>+</span>
+        <span className="p-2 ml-4  cursor-pointer border-2 border-black rounded-full" onClick={() => toggleSelectionMenu()}>+</span>
 
         {isOpenSelectionMenu &&
-          <DivWithLeftArrow className="absolute w-[200px] top-1/2 transform -translate-y-1/2 left-[calc(100%+15px)]" isOpenSelectionMenu={isOpenSelectionMenu} toggleSelectionMenu={toggleSelectionMenu}>
+          <DivWithLeftArrow
+            className="absolute w-[200px] top-1/2 transform -translate-y-1/2 left-[calc(100%+15px)]"
+            isOpenSelectionMenu={isOpenSelectionMenu}
+            toggleSelectionMenu={toggleSelectionMenu}
+          >
             <ul className="divide-y-[1px] ">
               {playerList.map(player => {
                 return (
-                  <li key={player.playerId} onClick={() => handleSelectPlayer()} className="p-2 ">{player.playerName}</li>
+                  <li key={player.playerId} onClick={() => handleSelectPlayer(player.playerId)} className="p-2">{player.playerName}</li>
                 )
               })}
             </ul>
           </DivWithLeftArrow>
         }
-
       </div>
+      {findPlayerNameById(playerList, (roundRankingList[place] as number)) && <button className="ml-4 border-2 border-black rounded-full p-2" onClick={() => clearOneRoundRanking(place)}>X</button>}
     </div>
   )
 }
