@@ -4,10 +4,12 @@ import { IPlayer } from '../../models/playerModel';
 import RoundRanking from '../../components/RoundRanking';
 import { swapValues } from '../../utils/smallUtils';
 import GameSideEvent from '../../components/GameSideEvent';
+import { ISideEvent } from '../../models/matchModel';
 
 const TienLen = () => {
   const [playerList, setPlayerList] = useState<IPlayer[]>([])
   const [roundRankingList, setRoundRankingList] = useState<Array<number | null>>([])
+  const [sideEvents, setSideEvents] = useState<ISideEvent[]>([])
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -66,6 +68,24 @@ const TienLen = () => {
     setPlayerList(newPlayerList)
   }
 
+  const addSideEvent = () => {
+    const newSideEvents = [...sideEvents]
+    newSideEvents.push({
+      eventId: crypto.randomUUID()
+    })
+    setSideEvents(newSideEvents)
+  }
+
+  const updateSideEvents = (sideEvent: any) => {
+    setSideEvents(sideEvent)
+  }
+
+  const removeSideEvent = (idx: number) => {
+    const newSideEvents = [...sideEvents]
+    newSideEvents.splice(idx, 1)
+    setSideEvents(newSideEvents)
+  }
+
   const onFinishRoundBtn = () => {
     scoreCalculateBasedOnRank()
     localStorage.setItem(`tien-len-playerList`, JSON.stringify(playerList));
@@ -105,8 +125,12 @@ const TienLen = () => {
         })}
       </div>
 
-      <span className="p-2 cursor-pointer border-2 border-black rounded-full" >+</span>
-      <GameSideEvent playerList={playerList} />
+      <span className="p-2 cursor-pointer border-2 border-black rounded-full" onClick={() => addSideEvent()}>+</span>
+      {sideEvents.map((sideEvent, index) => {
+        return (
+          <GameSideEvent key={index} playerList={playerList} sideEvent={sideEvent} updateSideEvents={updateSideEvents} removeSideEvent={removeSideEvent} />
+        )
+      })}
 
       <div>
         <button onClick={() => onFinishRoundBtn()}>Kết thúc hiệp chơi</button>
