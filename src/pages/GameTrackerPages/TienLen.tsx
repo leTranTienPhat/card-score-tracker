@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect } from 'react'
 import { IPlayer } from '../../models/playerModel';
 import { useNavigate } from 'react-router-dom';
 import RoundRanking from '../../components/RoundRanking';
