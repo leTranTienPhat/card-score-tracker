@@ -1,7 +1,7 @@
 import { IPlayer } from "../models/playerModel"
 import { useState } from "react"
 import DivWithLeftArrow from "./DivWithArrow/DivWithLeftArrow"
-import { findPlayerNameById } from "../utils/smallUtils"
+import { findPlayerNameById, findPlayerRankingById } from "../utils/smallUtils"
 
 interface IProps {
   place: number,
@@ -13,7 +13,6 @@ interface IProps {
 
 const RoundRanking = ({ place, playerList, roundRankingList, updateRoundRanking, clearOneRoundRanking }: IProps) => {
   const [isOpenSelectionMenu, setIsOpenSelectionMenu] = useState<boolean>(false)
-  console.log("rerender")
   const toggleSelectionMenu = () => {
     setIsOpenSelectionMenu(!isOpenSelectionMenu)
   }
@@ -42,7 +41,12 @@ const RoundRanking = ({ place, playerList, roundRankingList, updateRoundRanking,
             <ul className="divide-y-[1px] ">
               {playerList.map(player => {
                 return (
-                  <li key={player.playerId} onClick={() => handleSelectPlayer(player.playerId)} className="p-2">{player.playerName}</li>
+                  <li key={player.playerId} onClick={() => handleSelectPlayer(player.playerId)} className="p-2 hover:bg-red-200 cursor-pointer">
+                    <div className="flex justify-between">
+                      <p>{player.playerName}</p>
+                      <p>{findPlayerRankingById(roundRankingList, player.playerId)}</p>
+                    </div>
+                  </li>
                 )
               })}
             </ul>

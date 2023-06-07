@@ -26,6 +26,7 @@ const GameConfigPage = () => {
     if (storedPlayerList) {
       setIsGameRunning(true)
       setPlayerList(JSON.parse(storedPlayerList))
+      setNumberOfPlayer(JSON.parse(storedPlayerList).length)
     }
     else {
       const newPlayerList: IPlayer[] = []
@@ -89,10 +90,14 @@ const GameConfigPage = () => {
     }
   }
 
+  const onContinueBtn = () => {
+    navigate(`/score/${gameName}`, { state: { selectedGame } })
+  }
+
   return (
     <div>
       <div>
-        <h1>{selectedGame.name}</h1>
+        <h1>{selectedGame.name}{isGameRunning && " (Game đang tiếp diễn)"}</h1>
       </div>
       <div>Số lượng người chơi: </div>
       <input type="number" className="border-2 border-red-500" value={numberOfPlayer} onChange={(e) => setNumberOfPlayer(e.target.value)} onBlur={() => updatePlayerList()} />
@@ -105,7 +110,7 @@ const GameConfigPage = () => {
       </div>
       <div>
         <button className="border-2 border-blue-500 p-2" onClick={() => onStartGameBtn()}>{isGameRunning ? "Bắt đầu game mới" : "Bắt đầu"}</button>
-        {isGameRunning && <button className="border-2 border-blue-500 p-2">Tiếp tục (Not Working)</button>}
+        {isGameRunning && <button className="border-2 border-blue-500 p-2" onClick={() => onContinueBtn()}>Tiếp tục</button>}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { IPlayer } from '../../models/playerModel';
 import { useNavigate } from 'react-router-dom';
+import { IPlayer } from '../../models/playerModel';
 import RoundRanking from '../../components/RoundRanking';
 import { swapValues } from '../../utils/smallUtils';
 
@@ -49,14 +49,30 @@ const TienLen = () => {
     setRoundRankingList(newRoundRankingList)
   }
 
+  const scoreCalculateBasedOnRank = () => {
+    const newPlayerList = [...playerList]
+
+    let score = 2
+    roundRankingList.forEach(playerId => {
+      if (score === 0) score--
+      const updatePlayerIdx = newPlayerList.findIndex(player => player.playerId === playerId)
+      newPlayerList[updatePlayerIdx].currentScore += score
+      score--
+    })
+
+    setPlayerList(newPlayerList)
+  }
+
   const onFinishRoundBtn = () => {
-    localStorage.clear();
-    navigate('/')
+    scoreCalculateBasedOnRank()
+    console.log()
   }
 
   const onFinishGameBtn = () => {
-    localStorage.clear();
-    navigate('/')
+    console.log(playerList)
+
+    // localStorage.clear();
+    // navigate('/')
   }
 
   return (

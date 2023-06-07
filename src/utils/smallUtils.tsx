@@ -41,5 +41,10 @@ function findPlayerNameById(arr: IPlayer[], id: number) {
   return foundPlayer ? foundPlayer.playerName : '';
 }
 
-export { convertToKebabCase, hasDuplicateNames, swapValues, findPlayerNameById }
+function findPlayerRankingById(roundRankingArr: Array<number | null>, id: number) {
+  const foundRank = roundRankingArr.indexOf(id)
+
+  return foundRank >= 0 ? foundRank + 1 : ''
+}
+export { convertToKebabCase, hasDuplicateNames, swapValues, findPlayerNameById, findPlayerRankingById }
 
