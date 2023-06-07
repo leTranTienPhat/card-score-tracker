@@ -21,7 +21,7 @@ const GameConfigPage = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const storedPlayerList = localStorage.getItem(`tien-len-playerList`);
+    const storedPlayerList = localStorage.getItem(`${gameName}-playerList`);
 
     if (storedPlayerList) {
       setIsGameRunning(true)
@@ -40,12 +40,20 @@ const GameConfigPage = () => {
       }
       setPlayerList(newPlayerList)
     }
-  }, [selectedGame])
+  }, [selectedGame, gameName])
 
   const changePlayerName = (playerId: number, newName: string): void => {
     const newPlayerList = [...playerList]
     newPlayerList[playerId].playerName = newName
     setPlayerList(newPlayerList)
+  }
+
+  const resetPlayerScore = () => {
+    const newPlayerList = [...playerList].map(player => {
+      return { ...player, currentScore: 0 }
+    })
+    setPlayerList(newPlayerList)
+    localStorage.setItem(`${gameName}-playerList`, JSON.stringify(newPlayerList));
   }
 
   const updatePlayerList = () => {
@@ -82,16 +90,23 @@ const GameConfigPage = () => {
     if (duplicatedNames) {
       const [names] = duplicatedNames.values();
       alert(`Duplicate ${names}`)
+      return
     }
-    else {
-      localStorage.setItem(`${gameName}-playerList`, JSON.stringify(playerList));
-      setIsGameRunning(true)
-      navigate(`/score/${gameName}`, { state: { selectedGame } })
-    }
+
+    resetPlayerScore()
+    // localStorage.setItem(`${gameName}-playerList`, JSON.stringify(playerList));
+    setIsGameRunning(true)
+    navigate(`/score/${gameName}`, { state: { selectedGame } })
+
   }
 
   const onContinueBtn = () => {
     navigate(`/score/${gameName}`, { state: { selectedGame } })
+  }
+
+  const onCancelGameBtn = () => {
+    localStorage.removeItem(`${gameName}-playerList`);
+    navigate(0)
   }
 
   return (
@@ -111,6 +126,7 @@ const GameConfigPage = () => {
       <div>
         <button className="border-2 border-blue-500 p-2" onClick={() => onStartGameBtn()}>{isGameRunning ? "Bắt đầu game mới" : "Bắt đầu"}</button>
         {isGameRunning && <button className="border-2 border-blue-500 p-2" onClick={() => onContinueBtn()}>Tiếp tục</button>}
+        {isGameRunning && <button className="border-2 border-blue-500 p-2" onClick={() => onCancelGameBtn()}>Hủy trận đấu</button>}
       </div>
     </div>
   )
