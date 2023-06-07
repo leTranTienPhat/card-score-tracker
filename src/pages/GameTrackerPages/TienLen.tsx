@@ -65,7 +65,8 @@ const TienLen = () => {
 
   const onFinishRoundBtn = () => {
     scoreCalculateBasedOnRank()
-    console.log()
+    localStorage.setItem(`tien-len-playerList`, JSON.stringify(playerList));
+    setRoundRankingList(Array(playerList.length).fill(null))
   }
 
   const onFinishGameBtn = () => {
