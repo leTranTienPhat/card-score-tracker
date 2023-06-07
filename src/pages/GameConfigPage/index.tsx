@@ -94,10 +94,8 @@ const GameConfigPage = () => {
     }
 
     resetPlayerScore()
-    // localStorage.setItem(`${gameName}-playerList`, JSON.stringify(playerList));
     setIsGameRunning(true)
     navigate(`/score/${gameName}`, { state: { selectedGame } })
-
   }
 
   const onContinueBtn = () => {
