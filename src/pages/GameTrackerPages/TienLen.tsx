@@ -4,23 +4,23 @@ import { IPlayer } from '../../models/playerModel';
 import RoundRanking from '../../components/RoundRanking';
 import { swapValues } from '../../utils/smallUtils';
 import GameSideEvent from '../../components/GameSideEvent';
-import { ISideEvent } from '../../models/matchModel';
+import { IMatchData, ISideEvent, defaultMatchData } from '../../models/matchModel';
 import Button from '../../components/Button/Button';
 
 const TienLen = () => {
-  const [playerList, setPlayerList] = useState<IPlayer[]>([])
+  const [matchData, setMatchData] = useState<IMatchData>(defaultMatchData)
   const [roundRankingList, setRoundRankingList] = useState<Array<number | null>>([])
   const [sideEvents, setSideEvents] = useState<ISideEvent[]>([])
   const navigate = useNavigate()
 
   useEffect(() => {
-    const storedPlayerList = localStorage.getItem(`tien-len-playerList`);
-    if (storedPlayerList) {
-      setPlayerList(JSON.parse(storedPlayerList))
+    const storedMatchData = localStorage.getItem(`tien-len-match-data`);
+    if (storedMatchData) {
+      setMatchData(JSON.parse(storedMatchData))
       setRoundRankingList(Array(4).fill(null))
     }
     else navigate('/')
-  }, [navigate, playerList.length])
+  }, [navigate])
 
   const updateRoundRanking = (idx: number, playerId: number) => {
     let newRoundRankingList = [...roundRankingList]
@@ -43,45 +43,44 @@ const TienLen = () => {
     setRoundRankingList(newRoundRankingList)
   }
 
-  // const updatePlayerScore = () => {
-  //   console.log("asd")
-  // }
-
   const clearOneRoundRanking = (idx: number) => {
     const newRoundRankingList = [...roundRankingList]
     newRoundRankingList[idx] = null
     setRoundRankingList(newRoundRankingList)
   }
 
-  const updatePlayerScoreOnIdx = (playerArray: IPlayer[], updatePlayerId: number, amount: number) => {
+  const updatePlayerScoreOnIdx = (playerArray: IPlayer[], currentScoreArray: number[], updatePlayerId: number, amount: number) => {
     const updatePlayerIdx = playerArray.findIndex(player => player.playerId === updatePlayerId)
-    playerArray[updatePlayerIdx].currentScore += amount
+    currentScoreArray[updatePlayerIdx] += amount
   }
 
-  const scoreCalculateBasedOnSideEvents = (playerArray: IPlayer[]) => {
+  const scoreCalculateBasedOnSideEvents = (matchData: IMatchData) => {
+    const { playerList, currentScore } = matchData
     sideEvents.forEach(event => {
       if (event.gainScore && event.loseScore) {
-        updatePlayerScoreOnIdx(playerArray, event.gainScore.player.playerId, event.gainScore.score)
+        updatePlayerScoreOnIdx(playerList, currentScore, event.gainScore.player.playerId, event.gainScore.amount)
         event.loseScore.player.forEach(player => {
-          if (event.loseScore) updatePlayerScoreOnIdx(playerArray, player.playerId, -Math.abs(event.loseScore.score))
+          if (event.loseScore) updatePlayerScoreOnIdx(playerList, currentScore, player.playerId, -Math.abs(event.loseScore.amount))
         })
       }
     })
   }
 
   const scoreCalculate = () => {
-    const newPlayerList = [...playerList]
-    scoreCalculateBasedOnSideEvents(newPlayerList)
+    const newMatchData = { ...matchData }
+    const { playerList, currentScore } = newMatchData
+
+    scoreCalculateBasedOnSideEvents(newMatchData)
 
     let score = 2
     roundRankingList.forEach(playerId => {
       if (score === 0) score--
       if (playerId !== null) {
-        updatePlayerScoreOnIdx(newPlayerList, playerId, score)
+        updatePlayerScoreOnIdx(playerList, currentScore, playerId, score)
       }
       score--
     })
-    setPlayerList(newPlayerList)
+    setMatchData(newMatchData)
   }
 
   const addSideEvent = () => {
@@ -108,13 +107,13 @@ const TienLen = () => {
 
   const onFinishRoundBtn = () => {
     scoreCalculate()
-    localStorage.setItem(`tien-len-playerList`, JSON.stringify(playerList));
-    setRoundRankingList(Array(playerList.length).fill(null))
+    localStorage.setItem(`tien-len-match-data`, JSON.stringify(matchData));
+    setRoundRankingList(Array(matchData.playerList.length).fill(null))
     setSideEvents([])
   }
 
   const onFinishGameBtn = () => {
-    console.log(playerList)
+    console.log(matchData)
     // localStorage.clear();
     // navigate('/')
   }
@@ -124,9 +123,9 @@ const TienLen = () => {
       <h1>Tiến lên</h1>
 
       <div>
-        {playerList.map(player => {
+        {matchData.playerList.map(player => {
           return (
-            <div key={player.playerId}>{player.playerName}: {player.currentScore} điểm</div>
+            <div key={player.playerId}>{player.playerName}: {matchData.currentScore[player.playerId]} điểm</div>
           )
         })}
       </div>
@@ -139,7 +138,7 @@ const TienLen = () => {
             <RoundRanking
               key={index}
               place={index}
-              playerList={playerList}
+              playerList={matchData.playerList}
               roundRankingList={roundRankingList}
               clearOneRoundRanking={clearOneRoundRanking}
               updateRoundRanking={updateRoundRanking}
@@ -151,7 +150,7 @@ const TienLen = () => {
       <span className="p-2 cursor-pointer border-2 border-black rounded-full" onClick={() => addSideEvent()}>+</span>
       {sideEvents.map((sideEvent) => {
         return (
-          <GameSideEvent key={sideEvent.eventId} playerList={playerList} sideEvent={sideEvent} updateSideEvents={updateSideEvents} removeSideEvent={removeSideEvent} />
+          <GameSideEvent key={sideEvent.eventId} playerList={matchData.playerList} sideEvent={sideEvent} updateSideEvents={updateSideEvents} removeSideEvent={removeSideEvent} />
         )
       })}
 
