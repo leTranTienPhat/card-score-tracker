@@ -6,6 +6,7 @@ import { IGame } from '../../models/gameModel';
 import { hasDuplicateNames } from '../../utils/smallUtils';
 import PlayerName from './components/PlayerName';
 import Button from '../../components/Button/Button';
+import { IMatchData, defaultMatchData } from '../../models/matchModel';
 
 interface IRouterState {
   selectedGame: IGame;
@@ -16,18 +17,20 @@ const GameConfigPage = () => {
   const { state } = useLocation();
   const { selectedGame } = state as IRouterState
 
-  const [playerList, setPlayerList] = useState<IPlayer[]>([])
+  const [matchData, setMatchData] = useState<IMatchData>(defaultMatchData)
+
   const [numberOfPlayer, setNumberOfPlayer] = useState<string | number>(selectedGame.recommendNumberOfPlayer)
   const [isGameRunning, setIsGameRunning] = useState<boolean>(false)
   const navigate = useNavigate()
 
   useEffect(() => {
-    const storedPlayerList = localStorage.getItem(`${gameName}-playerList`);
+    const storedMatchData = localStorage.getItem(`${gameName}-match-data`);
 
-    if (storedPlayerList) {
+    if (storedMatchData) {
       setIsGameRunning(true)
-      setPlayerList(JSON.parse(storedPlayerList))
-      setNumberOfPlayer(JSON.parse(storedPlayerList).length)
+      const matchDataParsedFromStorage = JSON.parse(storedMatchData)
+      setMatchData(matchDataParsedFromStorage)
+      setNumberOfPlayer(matchDataParsedFromStorage.playerList.length)
     }
     else {
       const newPlayerList: IPlayer[] = []
@@ -35,30 +38,31 @@ const GameConfigPage = () => {
         const newPlayer = {
           playerId: playerCount,
           playerName: `Player ${playerCount + 1}`,
-          currentScore: 0
         }
         newPlayerList.push(newPlayer)
       }
-      setPlayerList(newPlayerList)
+      const newCurrentScore = Array(newPlayerList.length).fill(0)
+
+      const newMatchData = { ...defaultMatchData, playerList: newPlayerList, currentScore: newCurrentScore }
+      setMatchData(newMatchData)
     }
   }, [selectedGame, gameName])
 
   const changePlayerName = (playerId: number, newName: string): void => {
-    const newPlayerList = [...playerList]
+    const newPlayerList = [...matchData.playerList]
     newPlayerList[playerId].playerName = newName
-    setPlayerList(newPlayerList)
+
+    setMatchData({ ...matchData, playerList: newPlayerList })
   }
 
   const resetPlayerScore = () => {
-    const newPlayerList = [...playerList].map(player => {
-      return { ...player, currentScore: 0 }
-    })
-    setPlayerList(newPlayerList)
-    localStorage.setItem(`${gameName}-playerList`, JSON.stringify(newPlayerList));
+    const numberOfPlayers = matchData.playerList.length
+    setMatchData({ ...matchData, currentScore: Array(numberOfPlayers).fill(0) })
+    localStorage.setItem(`${gameName}-match-data`, JSON.stringify(matchData));
   }
 
   const updatePlayerList = () => {
-    const newPlayerList = [...playerList]
+    const newPlayerList = [...matchData.playerList]
     let numOfNewPlayers = Number(numberOfPlayer) - newPlayerList.length
 
     while (numOfNewPlayers !== 0) {
@@ -68,7 +72,6 @@ const GameConfigPage = () => {
           {
             playerId: newPlayerId,
             playerName: `Player ${newPlayerId + 1}`,
-            currentScore: 0
           }
         )
         numOfNewPlayers--
@@ -78,7 +81,8 @@ const GameConfigPage = () => {
         numOfNewPlayers++
       }
     }
-    setPlayerList(newPlayerList)
+
+    setMatchData({ ...matchData, playerList: newPlayerList })
   }
 
   const onStartGameBtn = () => {
@@ -87,7 +91,7 @@ const GameConfigPage = () => {
       if (!confirm(warningText)) return
     }
 
-    const duplicatedNames = hasDuplicateNames(playerList)
+    const duplicatedNames = hasDuplicateNames(matchData.playerList)
     if (duplicatedNames) {
       const [names] = duplicatedNames.values();
       alert(`Duplicate ${names}`)
@@ -104,7 +108,7 @@ const GameConfigPage = () => {
   }
 
   const onCancelGameBtn = () => {
-    localStorage.removeItem(`${gameName}-playerList`);
+    localStorage.removeItem(`${gameName}-match-data`);
     location.reload();
   }
 
@@ -118,7 +122,7 @@ const GameConfigPage = () => {
       <input type="number" className="border-2 border-red-500" value={numberOfPlayer} onChange={(e) => setNumberOfPlayer(e.target.value)} onBlur={() => updatePlayerList()} />
 
       <div>
-        {playerList.map(player => {
+        {matchData.playerList.map(player => {
           return (
             <PlayerName key={player.playerId} player={player} changePlayerName={changePlayerName} />
           )

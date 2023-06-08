@@ -49,11 +49,11 @@ const GameSideEvent = ({ playerList, sideEvent, updateSideEvents, removeSideEven
       eventId,
       gainScore: {
         player: selectedGainPlayer,
-        score: Number(gainScore)
+        amount: Number(gainScore)
       },
       loseScore: {
         player: selectedMultiple,
-        score: Number(loseScore)
+        amount: Number(loseScore)
       },
       note: note
     }
