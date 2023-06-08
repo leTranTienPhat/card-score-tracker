@@ -132,6 +132,8 @@ const TienLen = () => {
       </div>
 
       <div className="flex flex-col gap-4 my-4">
+        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* @ts-ignore */}
         {roundRankingList.map((round, index) => {
           return (
             <RoundRanking
