@@ -5,6 +5,7 @@ import RoundRanking from '../../components/RoundRanking';
 import { swapValues } from '../../utils/smallUtils';
 import GameSideEvent from '../../components/GameSideEvent';
 import { ISideEvent } from '../../models/matchModel';
+import Button from '../../components/Button/Button';
 
 const TienLen = () => {
   const [playerList, setPlayerList] = useState<IPlayer[]>([])
@@ -52,19 +53,34 @@ const TienLen = () => {
     setRoundRankingList(newRoundRankingList)
   }
 
-  const scoreCalculateBasedOnRank = () => {
+  const updatePlayerScoreOnIdx = (playerArray: IPlayer[], updatePlayerId: number, amount: number) => {
+    const updatePlayerIdx = playerArray.findIndex(player => player.playerId === updatePlayerId)
+    playerArray[updatePlayerIdx].currentScore += amount
+  }
+
+  const scoreCalculateBasedOnSideEvents = (playerArray: IPlayer[]) => {
+    sideEvents.forEach(event => {
+      if (event.gainScore && event.loseScore) {
+        updatePlayerScoreOnIdx(playerArray, event.gainScore.player.playerId, event.gainScore.score)
+        event.loseScore.player.forEach(player => {
+          if (event.loseScore) updatePlayerScoreOnIdx(playerArray, player.playerId, -Math.abs(event.loseScore.score))
+        })
+      }
+    })
+  }
+
+  const scoreCalculate = () => {
     const newPlayerList = [...playerList]
+    scoreCalculateBasedOnSideEvents(newPlayerList)
 
     let score = 2
     roundRankingList.forEach(playerId => {
       if (score === 0) score--
       if (playerId !== null) {
-        const updatePlayerIdx = newPlayerList.findIndex(player => player.playerId === playerId)
-        newPlayerList[updatePlayerIdx].currentScore += score
+        updatePlayerScoreOnIdx(newPlayerList, playerId, score)
       }
       score--
     })
-
     setPlayerList(newPlayerList)
   }
 
@@ -76,20 +92,25 @@ const TienLen = () => {
     setSideEvents(newSideEvents)
   }
 
-  const updateSideEvents = (sideEvent: any) => {
-    setSideEvents(sideEvent)
+  const updateSideEvents = (eventId: string, newSideEvent: ISideEvent) => {
+    const newSideEvents = [...sideEvents]
+    const selectedEventIdx = newSideEvents.findIndex(event => event.eventId === eventId)
+    newSideEvents[selectedEventIdx] = newSideEvent
+    setSideEvents(newSideEvents)
   }
 
-  const removeSideEvent = (idx: number) => {
+  const removeSideEvent = (eventId: string) => {
     const newSideEvents = [...sideEvents]
-    newSideEvents.splice(idx, 1)
+    const removeEventIdx = newSideEvents.findIndex(event => event.eventId === eventId)
+    newSideEvents.splice(removeEventIdx, 1)
     setSideEvents(newSideEvents)
   }
 
   const onFinishRoundBtn = () => {
-    scoreCalculateBasedOnRank()
+    scoreCalculate()
     localStorage.setItem(`tien-len-playerList`, JSON.stringify(playerList));
     setRoundRankingList(Array(playerList.length).fill(null))
+    setSideEvents([])
   }
 
   const onFinishGameBtn = () => {
@@ -126,15 +147,23 @@ const TienLen = () => {
       </div>
 
       <span className="p-2 cursor-pointer border-2 border-black rounded-full" onClick={() => addSideEvent()}>+</span>
-      {sideEvents.map((sideEvent, index) => {
+      {sideEvents.map((sideEvent) => {
         return (
-          <GameSideEvent key={index} playerList={playerList} sideEvent={sideEvent} updateSideEvents={updateSideEvents} removeSideEvent={removeSideEvent} />
+          <GameSideEvent key={sideEvent.eventId} playerList={playerList} sideEvent={sideEvent} updateSideEvents={updateSideEvents} removeSideEvent={removeSideEvent} />
         )
       })}
 
       <div>
-        <button onClick={() => onFinishRoundBtn()}>Kết thúc hiệp chơi</button>
-        <button onClick={() => onFinishGameBtn()}>Tổng kết trận đấu</button>
+        <Button onClick={() => onFinishRoundBtn()}>
+          <span>
+            Kết thúc hiệp chơi
+          </span>
+        </Button>
+        <Button onClick={() => onFinishGameBtn()}>
+          <span>
+            Log thông tin
+          </span>
+        </Button>
       </div>
     </div >
   )

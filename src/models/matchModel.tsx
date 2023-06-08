@@ -1,11 +1,13 @@
+import { IPlayer } from "./playerModel"
+
 export interface ISideEvent {
   eventId: string,
   gainScore?: {
-    playerId: number,
+    player: IPlayer,
     score: number,
   },
   loseScore?: {
-    playerId: number,
+    player: IPlayer[],
     score: number
   },
   note?: string
