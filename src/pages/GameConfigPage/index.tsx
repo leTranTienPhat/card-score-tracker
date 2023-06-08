@@ -5,6 +5,7 @@ import { IPlayer } from '../../models/playerModel';
 import { IGame } from '../../models/gameModel';
 import { hasDuplicateNames } from '../../utils/smallUtils';
 import PlayerName from './components/PlayerName';
+import Button from '../../components/Button/Button';
 
 interface IRouterState {
   selectedGame: IGame;
@@ -112,8 +113,10 @@ const GameConfigPage = () => {
       <div>
         <h1>{selectedGame.name}{isGameRunning && " (Game đang tiếp diễn)"}</h1>
       </div>
+
       <div>Số lượng người chơi: </div>
       <input type="number" className="border-2 border-red-500" value={numberOfPlayer} onChange={(e) => setNumberOfPlayer(e.target.value)} onBlur={() => updatePlayerList()} />
+
       <div>
         {playerList.map(player => {
           return (
@@ -121,10 +124,22 @@ const GameConfigPage = () => {
           )
         })}
       </div>
+
       <div>
-        <button className="border-2 border-blue-500 p-2" onClick={() => onStartGameBtn()}>{isGameRunning ? "Bắt đầu game mới" : "Bắt đầu"}</button>
-        {isGameRunning && <button className="border-2 border-blue-500 p-2" onClick={() => onContinueBtn()}>Tiếp tục</button>}
-        {isGameRunning && <button className="border-2 border-blue-500 p-2" onClick={() => onCancelGameBtn()}>Hủy trận đấu</button>}
+        <Button onClick={() => onStartGameBtn()}>
+          {isGameRunning ? <span>Bắt đầu game mới</span> : <span>Bắt đầu</span>}
+        </Button>
+
+        {isGameRunning &&
+          <>
+            <Button onClick={() => onContinueBtn()}>
+              <span>Tiếp tục</span>
+            </Button>
+            <Button onClick={() => onCancelGameBtn()}>
+              <span>Hủy trận đấu</span>
+            </Button>
+          </>
+        }
       </div>
     </div>
   )
